@@ -1,0 +1,57 @@
+@import '../styles/theme.scss';
+
+.container {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: auto auto;
+	width: 100%;
+	text-align: center;
+	align-items: center;
+
+	.player {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		text-transform: uppercase;
+		font-size: 0.75rem;
+		font-weight: bold;
+
+		img {
+			width: 3rem;
+			height: 3rem;
+		}
+	}
+
+	.setScore {
+		font-size: 2.5rem;
+		font-weight: bold;
+	}
+
+	.teamsScore {
+		font-size: 1rem;
+		opacity: 0.48;
+	}
+
+	.stocks {
+		display: flex;
+		gap: 0.5rem;
+		justify-content: center;
+
+		.filled,
+		.empty {
+			width: 1rem;
+			height: 1rem;
+			border-radius: 0.25rem;
+			border: 1px solid transparent;
+		}
+
+		.filled {
+			background-color: $accent;
+		}
+
+		.empty {
+			border-color: $accent;
+		}
+	}
+}

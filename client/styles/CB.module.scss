@@ -1,0 +1,35 @@
+@import '../styles/theme.scss';
+
+.container {
+	display: grid;
+	grid-template-columns: 1fr 480px;
+	height: 100vh;
+
+	.main {
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+	}
+
+	.sets {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2rem;
+		padding-top: 2rem;
+
+		.setsHeader {
+			display: grid;
+			width: 100%;
+			grid-template-columns: 1fr 1px 1fr;
+			text-align: center;
+			text-transform: uppercase;
+			font-size: 1rem;
+
+			.separator {
+				background-color: rgba($light, 0.32);
+				width: 1px;
+				height: 100%;
+			}
+		}
+	}
+}

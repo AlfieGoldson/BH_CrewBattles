@@ -1,8 +1,9 @@
 import styles from '../styles/ConfigPage.module.scss';
-
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import Head from 'next/head';
 const ENDPOINT = 'http://localhost:3001';
+import { motion } from 'framer-motion';
 
 export default function ConfigPage() {
 	const [socket, setSocket] = useState<Socket>(null);
@@ -65,6 +66,11 @@ export default function ConfigPage() {
 
 	return (
 		<div className={styles.container}>
+			<Head>
+				<title>
+					{clans[0].name} vs. {clans[1].name} • Config
+				</title>
+			</Head>
 			<h1>Crew Battle Config</h1>
 			<div>
 				<label>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Match } from '../components/Match';
 import styles from '../styles/CB.module.scss';
-
+import Head from 'next/head';
 import { io } from 'socket.io-client';
+import { AnimateSharedLayout, motion } from 'framer-motion';
 const ENDPOINT = 'http://localhost:3001';
 
 function getCrewBattle<
@@ -103,27 +104,34 @@ export default function CBPage() {
 
 	return (
 		CB && (
-			<div className={styles.container}>
-				<div className={styles.main}>
-					<div></div>
-					<div></div>
-					<div></div>
-				</div>
-				<div className={styles.sets}>
-					<div className={styles.setsHeader}>
-						<p>{CB.clan1.name}</p>
-						<div className={styles.separator}></div>
-						<p>{CB.clan2.name}</p>
+			<>
+				<Head>
+					<title>
+						{CB.clan1.name} vs. {CB.clan2.name}
+					</title>
+				</Head>
+				<div className={styles.container}>
+					<div className={styles.main}>
+						<div></div>
+						<div></div>
+						<div></div>
 					</div>
-					{CB.matches.map((m) => (
-						<Match
-							maxStocks={CB.stocksPerPlayer}
-							player1={m.player1}
-							player2={m.player2}
-						/>
-					))}
+					<div className={styles.sets}>
+						<div className={styles.setsHeader}>
+							<p>{CB.clan1.name}</p>
+							<div className={styles.separator}></div>
+							<p>{CB.clan2.name}</p>
+						</div>
+						{CB.matches.map((m) => (
+							<Match
+								maxStocks={CB.stocksPerPlayer}
+								player1={m.player1}
+								player2={m.player2}
+							/>
+						))}
+					</div>
 				</div>
-			</div>
+			</>
 		)
 	);
 }

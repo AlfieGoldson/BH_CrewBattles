@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import styles from './Match.module.scss';
 
 export interface ICBPlayer<PlayerName extends string> {
@@ -36,7 +37,11 @@ export function Match<Clan1Name extends string, Clan2Name extends string>({
 	maxStocks,
 }: Props<Clan1Name, Clan2Name>) {
 	return (
-		<div className={styles.container}>
+		<motion.div
+			className={styles.container}
+			initial={{ opacity: 0, y: -100 }}
+			animate={{ opacity: 1, y: 0 }}
+		>
 			<div className={styles.player}>
 				<img src={`/legends/${player1.legend}.png`} />
 				{player1.name}
@@ -54,6 +59,6 @@ export function Match<Clan1Name extends string, Clan2Name extends string>({
 				{player1.teamScore} - {player2.teamScore}
 			</div>
 			<Stocks stocks={player2.startingStocks} maxStocks={maxStocks} />
-		</div>
+		</motion.div>
 	);
 }

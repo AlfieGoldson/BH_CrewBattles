@@ -19,29 +19,26 @@ const io = socketIo(server, {
 	},
 });
 
-let interval;
+let sockets = [];
 
 io.on('connection', (socket) => {
 	console.log('New client connected');
-	if (interval) {
-		clearInterval(interval);
-	}
-	interval = setInterval(() => getApiAndEmit(socket), 1000);
+	sockets.push(socket);
+
 	socket.on('disconnect', () => {
 		console.log('Client disconnected');
-		clearInterval(interval);
+		sockets.pop(socket);
+	});
+
+	socket.on('newCBData', (data) => {
+		try {
+			if (!data) return;
+
+			JSON.parse(data); //TODO: Better test
+
+			sockets.forEach((s) => s.emit('CBData', data));
+		} catch (e) {}
 	});
 });
-
-const getApiAndEmit = (socket) => {
-	try {
-		const fileData = fs.readFileSync('./cbtest.json');
-		if (!fileData) return;
-
-		JSON.parse(fileData); //TODO: Better test
-
-		socket.emit('CBData', fileData.toString());
-	} catch (e) {}
-};
 
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));

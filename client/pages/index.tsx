@@ -1,32 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Match, ICBPlayer } from '../components/Match';
+import { Match } from '../components/Match';
 import styles from '../styles/CB.module.scss';
 
 import { io } from 'socket.io-client';
 const ENDPOINT = 'http://localhost:3001';
-
-interface ICBClan<NPlayers extends number, PlayerName extends string> {
-	name: string;
-	players: Tuple<[name: PlayerName, legend: string], NPlayers>;
-}
-
-interface CBMatch<Clan1Name extends string, Clan2Name extends string> {
-	player1: ICBPlayer<Clan1Name>;
-	player2: ICBPlayer<Clan2Name>;
-}
-
-interface ICrewBattle<
-	NPlayers extends number,
-	Clan1Name extends string,
-	Clan1 extends ICBClan<NPlayers, Clan1Name>,
-	Clan2Name extends string,
-	Clan2 extends ICBClan<NPlayers, Clan2Name>
-> {
-	clan1: Clan1;
-	clan2: Clan2;
-	matches: CBMatch<Clan1Name, Clan2Name>[];
-	stocksPerPlayer: number;
-}
 
 function getCrewBattle<
 	NPlayers extends number,
@@ -83,10 +60,21 @@ function getCrewBattle<
 }
 
 export default function CBPage() {
+	const [CB, setCB] = useState<
+		ICrewBattle<
+			number,
+			string,
+			ICBClan<number, string>,
+			string,
+			ICBClan<number, string>
+		>
+	>(null);
+
 	useEffect(() => {
 		const socket = io(ENDPOINT);
 		socket.on('CBData', (data) => {
 			if (!data) return;
+			console.log('DATA', data);
 			try {
 				const {
 					playerCount,
@@ -94,7 +82,8 @@ export default function CBPage() {
 					clan1,
 					clan2,
 					scores,
-				} = JSON.parse(data);
+				} = JSON.parse(data) as IJSONCrewBattle<number>;
+
 				setCB(
 					getCrewBattle(
 						playerCount,
@@ -108,23 +97,17 @@ export default function CBPage() {
 		});
 	}, []);
 
-	const [CB, setCB] = useState<
-		ICrewBattle<
-			number,
-			string,
-			ICBClan<number, string>,
-			string,
-			ICBClan<number, string>
-		>
-	>(null);
+	useEffect(() => {
+		console.log(CB);
+	}, [CB]);
 
 	return (
 		CB && (
 			<div className={styles.container}>
 				<div className={styles.main}>
-					<div>LOGO</div>
-					<div>SCORE</div>
-					<div>TEAMS</div>
+					<div></div>
+					<div></div>
+					<div></div>
 				</div>
 				<div className={styles.sets}>
 					<div className={styles.setsHeader}>

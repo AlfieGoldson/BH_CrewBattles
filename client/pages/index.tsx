@@ -3,7 +3,6 @@ import { Match } from '../components/Match';
 import styles from '../styles/CB.module.scss';
 import Head from 'next/head';
 import { io } from 'socket.io-client';
-import { AnimateSharedLayout, motion } from 'framer-motion';
 const ENDPOINT = 'http://localhost:3001';
 
 function getCrewBattle<

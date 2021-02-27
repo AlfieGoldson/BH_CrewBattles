@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Head from 'next/head';
 const ENDPOINT = 'http://localhost:3001';
-import { motion } from 'framer-motion';
 
 export default function ConfigPage() {
 	const [socket, setSocket] = useState<Socket>(null);

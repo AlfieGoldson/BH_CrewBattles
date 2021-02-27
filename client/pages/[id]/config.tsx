@@ -2,6 +2,7 @@ import styles from '../../styles/ConfigPage.module.scss';
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Head from 'next/head';
+import Link from 'next/link';
 const ENDPOINT = 'http://localhost:3001';
 
 import { useRouter } from 'next/router';
@@ -53,7 +54,6 @@ export default function ConfigPage() {
 		if (!socket) return;
 
 		socket.on('CBData', (data) => {
-			console.log(data);
 			if (!data) return;
 			try {
 				const {
@@ -66,9 +66,36 @@ export default function ConfigPage() {
 
 				setPlayerCount(playerCount);
 				setStocksPerPlayer(stocksPerPlayer);
-				setClans([clan1, clan2]);
+				setClans([
+					{
+						...clan1,
+						players: [
+							...clan1.players,
+							...Array.from({ length: 10 - playerCount }, (): [
+								string,
+								string
+							] => ['', '']),
+						],
+					},
+					{
+						...clan2,
+						players: [
+							...clan2.players,
+							...Array.from({ length: 10 - playerCount }, (): [
+								string,
+								string
+							] => ['', '']),
+						],
+					},
+				]);
 				setScoresCount(scores.length);
-				setScores(scores);
+				setScores([
+					...scores,
+					...Array.from({ length: 100 - scoresCount }, (): [
+						number,
+						number
+					] => [0, 0]),
+				]);
 			} catch (e) {
 				console.log(e);
 			}
@@ -223,9 +250,16 @@ export default function ConfigPage() {
 					</div>
 				))}
 			</div>
-			<button onClick={handleSubmit} className={styles.submitBtn}>
-				Submit
-			</button>
+			<div className={styles.buttons}>
+				<a onClick={handleSubmit} className={styles.submitBtn}>
+					Submit
+				</a>
+				<Link href={`/${id}`}>
+					<a target='_blank' className={styles.submitBtn}>
+						Open Display Page
+					</a>
+				</Link>
+			</div>
 		</div>
 	);
 }

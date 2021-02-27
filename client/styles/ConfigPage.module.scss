@@ -35,19 +35,24 @@
 		}
 	}
 
-	.submitBtn {
-		padding: 0.5rem 1rem;
-		border-radius: 4px;
-		margin: 2rem 0;
-		border: none;
-		background-color: $accent;
-		color: $light;
-		font-size: 1rem;
-		text-transform: uppercase;
-		cursor: pointer;
+	.buttons {
+		display: flex;
+		gap: 1rem;
 
-		&:hover {
-			background-color: rgb(10, 10, 12);
+		.submitBtn {
+			padding: 0.5rem 1rem;
+			border-radius: 4px;
+			margin: 2rem 0;
+			border: none;
+			background-color: $accent;
+			color: $light;
+			font-size: 1rem;
+			text-transform: uppercase;
+			cursor: pointer;
+
+			&:hover {
+				background-color: rgb(10, 10, 12);
+			}
 		}
 	}
 }

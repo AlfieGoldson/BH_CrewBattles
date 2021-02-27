@@ -1,0 +1,28 @@
+@import './theme.scss';
+
+.container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+	min-height: 480px;
+	gap: 2rem;
+
+	.cbNameInput {
+		padding: 0.5rem 1rem;
+		border-radius: 4px;
+		margin-left: 1rem;
+	}
+
+	.cbLink {
+		padding: 0.5rem 1rem;
+		background-color: $accent;
+		border-radius: 4px;
+
+		.cbName {
+			font-weight: bold;
+			text-transform: uppercase;
+		}
+	}
+}

@@ -1,8 +1,10 @@
-import styles from '../styles/ConfigPage.module.scss';
+import styles from '../../styles/ConfigPage.module.scss';
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Head from 'next/head';
 const ENDPOINT = 'http://localhost:3001';
+
+import { useRouter } from 'next/router';
 
 export default function ConfigPage() {
 	const [socket, setSocket] = useState<Socket>(null);
@@ -19,8 +21,12 @@ export default function ConfigPage() {
 		Array.from({ length: 100 }, () => [0, 0])
 	);
 
+	const {
+		query: { id },
+	} = useRouter();
+
 	function handleSubmit() {
-		if (!socket) return;
+		if (!socket || !id) return;
 		const jsonCB: IJSONCrewBattle<number> = {
 			clan1: {
 				...clans[0],
@@ -31,17 +37,46 @@ export default function ConfigPage() {
 				players: clans[1].players.filter((_, i) => i < playerCount),
 			},
 			playerCount,
-			scores: scores.filter((_, i) => i < scoresCount), //TODO: this
+			scores: scores.filter((_, i) => i < scoresCount),
 			stocksPerPlayer,
 		};
-		console.log(JSON.stringify(jsonCB));
-		socket.emit('newCBData', JSON.stringify(jsonCB));
+
+		socket.emit('newCBData', { channelId: id, ...jsonCB });
 	}
 
 	useEffect(() => {
-		const sock = io(ENDPOINT);
-		setSocket(sock);
-	}, []);
+		setSocket(io(ENDPOINT));
+	}, [id]);
+
+	useEffect(() => {
+		console.log('socket', socket);
+		if (!socket) return;
+
+		socket.on('CBData', (data) => {
+			console.log(data);
+			if (!data) return;
+			try {
+				const {
+					playerCount,
+					stocksPerPlayer,
+					clan1,
+					clan2,
+					scores,
+				} = data as IJSONCrewBattle<number>;
+
+				setPlayerCount(playerCount);
+				setStocksPerPlayer(stocksPerPlayer);
+				setClans([clan1, clan2]);
+				setScoresCount(scores.length);
+				setScores(scores);
+			} catch (e) {
+				console.log(e);
+			}
+		});
+
+		socket.emit('requestData', { channelId: id });
+		console.log('request');
+	}, [socket]);
 
 	function updatePlayerValue(
 		teamId: number,

@@ -1,7 +1,7 @@
 const express = require('express');
 const http = require('http');
+const { parse } = require('path');
 const socketIo = require('socket.io');
-const fs = require('fs');
 
 const PORT = process.env.PORT || 3001;
 
@@ -20,24 +20,54 @@ const io = socketIo(server, {
 });
 
 let sockets = [];
+let cbData = {};
 
 io.on('connection', (socket) => {
 	console.log('New client connected');
-	sockets.push(socket);
 
 	socket.on('disconnect', () => {
 		console.log('Client disconnected');
-		sockets.pop(socket);
+		sockets = sockets.filter((s) => s.socket !== socket);
 	});
 
 	socket.on('newCBData', (data) => {
 		try {
 			if (!data) return;
 
-			JSON.parse(data); //TODO: Better test
+			const { channelId, ...newData } = data;
 
-			sockets.forEach((s) => s.emit('CBData', data));
-		} catch (e) {}
+			if (!channelId) return;
+
+			console.log(`Received Data, ID: ${channelId}`);
+
+			cbData = { ...cbData, [channelId]: newData };
+
+			sockets
+				.filter((s) => s.channelId === channelId)
+				.forEach((s) => s.socket.emit('CBData', newData));
+		} catch (e) {
+			console.error(e);
+		}
+	});
+
+	socket.on('requestData', (data) => {
+		const { channelId } = data;
+		if (!channelId) return;
+
+		console.log('request', channelId);
+
+		sockets = [
+			...sockets.filter((s) => s.socket !== socket),
+			{ socket, channelId },
+		];
+
+		console.log(sockets);
+
+		if (!cbData[channelId]) return;
+
+		console.log(cbData[channelId]);
+
+		socket.emit('CBData', cbData[channelId]);
 	});
 });
 

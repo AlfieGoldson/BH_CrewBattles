@@ -7,6 +7,14 @@ type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N
 	? R
 	: _TupleOf<T, N, [T, ...R]>;
 
+interface ICBPlayer<PlayerName extends string> {
+	name: PlayerName;
+	startingStocks: number;
+	score: number;
+	teamScore: number;
+	legend: string;
+}
+
 interface ICBClan<NPlayers extends number, PlayerName extends string> {
 	name: string;
 	players: Tuple<[name: PlayerName, legend: string], NPlayers>;

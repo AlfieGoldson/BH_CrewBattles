@@ -120,7 +120,39 @@ export default function CBPage() {
 					<div className={styles.main}>
 						<div></div>
 						<div></div>
-						<div></div>
+						<div>
+							{[CB.clan1, CB.clan2].map((clan, clanId) =>
+								clan.players.map((p) => {
+									const totalStocks = CB.matches
+										.filter(
+											(m) =>
+												(clanId === 0
+													? m.player1.name
+													: m.player2.name) === p[0]
+										)
+										.reduce(
+											(acc, m) =>
+												acc +
+												(clanId === 0
+													? m.player1.score
+													: m.player2.score),
+											0
+										);
+
+									return (
+										<div className={styles.playerName}>
+											<img
+												width='32px'
+												height='32px'
+												src={`/legends/${p[1]}.png`}
+											/>
+											{p[0]} - {totalStocks} Stock
+											{totalStocks <= 1 ? '' : 's'} Taken
+										</div>
+									);
+								})
+							)}
+						</div>
 					</div>
 					<div className={styles.sets}>
 						<div className={styles.setsHeader}>
@@ -128,11 +160,12 @@ export default function CBPage() {
 							<div className={styles.separator}></div>
 							<p>{CB.clan2.name}</p>
 						</div>
-						{CB.matches.map((m) => (
+						{CB.matches.map((m, i) => (
 							<Match
 								maxStocks={CB.stocksPerPlayer}
 								player1={m.player1}
 								player2={m.player2}
+								matchId={i}
 							/>
 						))}
 					</div>

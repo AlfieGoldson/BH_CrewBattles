@@ -7,6 +7,7 @@
 	max-width: 1200px;
 	margin: 0 auto;
 	gap: 1rem;
+	background-color: $bg;
 
 	input {
 		padding: 0.5rem 0.75rem;
@@ -15,9 +16,21 @@
 		margin: 0.25rem;
 	}
 
+	.legendsSelect {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+
+		.select {
+			flex: 1;
+			color: $bg;
+		}
+	}
+
 	.clans {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		gap: 2rem;
 	}
 
 	.clan,

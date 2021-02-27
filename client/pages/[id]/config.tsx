@@ -4,7 +4,8 @@ import { io, Socket } from 'socket.io-client';
 import Head from 'next/head';
 import Link from 'next/link';
 const ENDPOINT = 'http://localhost:3001';
-
+import Select from 'react-select';
+import { legends } from '../../util/legends';
 import { useRouter } from 'next/router';
 
 export default function ConfigPage() {
@@ -195,18 +196,36 @@ export default function ConfigPage() {
 											)
 										}
 									/>
-									<input
-										type='text'
-										value={clans[clanId].players[i][1]}
-										onChange={(e) =>
-											updatePlayerValue(
-												clanId,
-												i,
-												1,
-												e.target.value
-											)
-										}
-									/>
+									<div className={styles.legendsSelect}>
+										{clans[clanId].players[i][1] && (
+											<img
+												width='32px'
+												height='32px'
+												src={`/legends/${clans[clanId].players[i][1]}.png`}
+											/>
+										)}
+										<Select
+											className={styles.select}
+											value={{
+												value:
+													clans[clanId].players[i][1],
+												label:
+													clans[clanId].players[i][1],
+											}}
+											options={legends.map((l) => ({
+												value: l.bio_name,
+												label: l.bio_name,
+											}))}
+											onChange={(e) =>
+												updatePlayerValue(
+													clanId,
+													i,
+													1,
+													e.value
+												)
+											}
+										/>
+									</div>
 								</div>
 							</div>
 						))}

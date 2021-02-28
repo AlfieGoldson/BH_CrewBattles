@@ -36,6 +36,7 @@ interface ICrewBattle<
 	clan2: Clan2;
 	matches: CBMatch<Clan1Name, Clan2Name>[];
 	stocksPerPlayer: number;
+	currentScore: [number, number];
 }
 
 interface IJSONCrewBattle<NPlayers extends number> {

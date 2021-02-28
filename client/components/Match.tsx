@@ -35,7 +35,7 @@ export function Match<Clan1Name extends string, Clan2Name extends string>({
 			className={styles.container}
 			initial={{ opacity: 0, y: -100 }}
 			animate={{ opacity: 1, y: 0 }}
-			transition={{ delay: matchId / 10 }}
+			transition={{ delay: matchId / 15 }}
 		>
 			<div className={styles.player}>
 				<img src={`/legends/${player1.legend}.png`} />

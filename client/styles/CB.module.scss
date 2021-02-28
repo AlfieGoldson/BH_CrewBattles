@@ -9,10 +9,64 @@
 		display: grid;
 		grid-template-rows: auto 1fr auto;
 
-		.playerName {
+		.logo {
+			padding: 4rem 0;
 			display: flex;
+			justify-content: center;
 			align-items: center;
-			gap: 1rem;
+
+			img {
+				width: auto;
+				height: 64px;
+			}
+		}
+
+		.currentScore {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			max-width: 800px;
+			width: 100%;
+			margin: 0 auto;
+
+			.clan1,
+			.clan2 {
+				font-size: 2.5rem;
+				text-transform: uppercase;
+				text-align: center;
+			}
+
+			.clan1 {
+				margin-left: -50%;
+			}
+
+			.clan2 {
+				margin-right: -50%;
+			}
+
+			.score {
+				font-size: 10rem;
+				text-align: center;
+				font-weight: bold;
+			}
+		}
+
+		.players {
+			width: 100%;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			justify-content: center;
+			justify-items: center;
+			align-items: center;
+			padding: 4rem 0;
+
+			.playerName {
+				display: flex;
+				align-items: center;
+				img {
+					margin-right: 1rem;
+				}
+			}
 		}
 	}
 
@@ -20,8 +74,6 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 2rem;
-		padding-top: 2rem;
 
 		.setsHeader {
 			display: grid;
@@ -30,6 +82,7 @@
 			text-align: center;
 			text-transform: uppercase;
 			font-size: 1rem;
+			padding: 4rem 0;
 
 			.separator {
 				background-color: rgba($light, 0.32);

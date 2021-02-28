@@ -7,6 +7,7 @@
 	width: 100%;
 	text-align: center;
 	align-items: center;
+	margin-bottom: 2rem;
 
 	.player {
 		display: flex;
@@ -35,7 +36,6 @@
 
 	.stocks {
 		display: flex;
-		gap: 0.5rem;
 		justify-content: center;
 
 		.filled,
@@ -44,6 +44,7 @@
 			height: 1rem;
 			border-radius: 0.25rem;
 			border: 1px solid transparent;
+			margin: 0 0.25rem;
 		}
 
 		.filled {

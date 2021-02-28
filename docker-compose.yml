@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+    client:
+        build:
+            context: ./client
+            dockerfile: Dockerfile
+        container_name: bhcb_client
+        restart: always
+        volumes:
+            - ./client:/usr/src/app
+        ports:
+            - '3000:3000'
+        depends_on:
+            - server
+        environment:
+            - NEXT_PUBLIC_SERVER_ENDPOINT=http://localhost:3001
+    server:
+        build:
+            context: ./server
+            dockerfile: Dockerfile
+        container_name: bhcb_server
+        restart: always
+        volumes:
+            - ./server:/usr/src/server
+        ports:
+            - '3001:3001'
+        depends_on:
+            - redis
+    redis:
+        image: redis
+        container_name: bhcb_redis

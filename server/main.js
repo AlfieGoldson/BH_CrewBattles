@@ -61,11 +61,7 @@ io.on('connection', (socket) => {
 			{ socket, channelId },
 		];
 
-		console.log(sockets);
-
 		if (!cbData[channelId]) return;
-
-		console.log(cbData[channelId]);
 
 		socket.emit('CBData', cbData[channelId]);
 	});

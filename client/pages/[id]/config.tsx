@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Head from 'next/head';
 import Link from 'next/link';
-const ENDPOINT = 'http://localhost:3001';
 import Select from 'react-select';
 import { legends } from '../../util/legends';
 import { useRouter } from 'next/router';
@@ -47,7 +46,7 @@ export default function ConfigPage() {
 	}
 
 	useEffect(() => {
-		setSocket(io(ENDPOINT));
+		setSocket(io(process.env.NEXT_PUBLIC_SERVER_ENDPOINT));
 	}, [id]);
 
 	useEffect(() => {

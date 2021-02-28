@@ -5,6 +5,8 @@ import Link from 'next/link';
 export default function HomePage() {
 	const [CBName, setCBName] = useState('');
 
+	console.log(process.env.NEXT_PUBLIC_SERVER_ENDPOINT);
+
 	return (
 		<div className={styles.container}>
 			<p>

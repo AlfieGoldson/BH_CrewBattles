@@ -4,7 +4,6 @@ import styles from '../../styles/CB.module.scss';
 import Head from 'next/head';
 import { io } from 'socket.io-client';
 import { useRouter } from 'next/router';
-const ENDPOINT = 'http://localhost:3001';
 
 function getCrewBattle<
 	NPlayers extends number,
@@ -76,7 +75,7 @@ export default function CBPage() {
 	} = useRouter();
 
 	useEffect(() => {
-		const socket = io(ENDPOINT);
+		const socket = io(process.env.NEXT_PUBLIC_SERVER_ENDPOINT);
 
 		socket.on('CBData', (data) => {
 			console.log(data);

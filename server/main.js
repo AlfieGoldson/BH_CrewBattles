@@ -1,7 +1,13 @@
 const express = require('express');
 const http = require('http');
-const { parse } = require('path');
 const socketIo = require('socket.io');
+const redis = require('redis');
+
+const redisClient = redis.createClient(process.env.REDIS_URL);
+
+redisClient.on('error', function (error) {
+	console.error(error);
+});
 
 const PORT = process.env.PORT || 3001;
 
@@ -20,7 +26,6 @@ const io = socketIo(server, {
 });
 
 let sockets = [];
-let cbData = {};
 
 io.on('connection', (socket) => {
 	console.log('New client connected');
@@ -40,11 +45,15 @@ io.on('connection', (socket) => {
 
 			console.log(`Received Data, ID: ${channelId}`);
 
-			cbData = { ...cbData, [channelId]: newData };
+			redisClient.del(channelId);
+			redisClient.set(channelId, JSON.stringify(newData), () => {
+				console.log(newData);
+				sockets
+					.filter((s) => s.channelId === channelId)
+					.forEach((s) => s.socket.emit('CBData', newData));
+			});
 
-			sockets
-				.filter((s) => s.channelId === channelId)
-				.forEach((s) => s.socket.emit('CBData', newData));
+			redisClient.get(channelId, redis.print);
 		} catch (e) {
 			console.error(e);
 		}
@@ -61,9 +70,13 @@ io.on('connection', (socket) => {
 			{ socket, channelId },
 		];
 
-		if (!cbData[channelId]) return;
-
-		socket.emit('CBData', cbData[channelId]);
+		redisClient.get(channelId, (e, cbData) => {
+			if (e) return;
+			if (!cbData) return;
+			try {
+				socket.emit('CBData', JSON.parse(cbData));
+			} catch (e) {}
+		});
 	});
 });
 

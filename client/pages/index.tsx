@@ -21,7 +21,7 @@ export default function HomePage() {
 				/>
 			</p>
 			{CBName && (
-				<Link href={`/${CBName}/config`}>
+				<Link href={`/${CBName}`}>
 					<a className={styles.cbLink}>
 						Config <span className={styles.cbName}>{CBName}</span>{' '}
 						Crew Battle

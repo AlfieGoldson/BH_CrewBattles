@@ -1,91 +1,92 @@
+import styles from '../../styles/ConfigPage.module.scss';
 import { useEffect, useState } from 'react';
-import { Match } from '../../components/Match';
-import styles from '../../styles/CB.module.scss';
 import Head from 'next/head';
-import { io } from 'socket.io-client';
+import Link from 'next/link';
+import Select from 'react-select';
+import { legends } from '../../util/legends';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
+import { useCB } from '../../hooks/useCB';
 
-function getCrewBattle<
-	NPlayers extends number,
-	Clan1Name extends string,
-	Clan1 extends ICBClan<NPlayers, Clan1Name>,
-	Clan2Name extends string,
-	Clan2 extends ICBClan<NPlayers, Clan2Name>
->(
-	playerCount: NPlayers,
-	stocksPerPlayer: number,
-	clan1: Clan1,
-	clan2: Clan2,
-	scores: [number, number][]
-): ICrewBattle<NPlayers, Clan1Name, Clan1, Clan2Name, Clan2> {
-	const matches = scores
-		.map(
-			([s1, s2], i): CBMatch<Clan1Name, Clan2Name> => {
-				if (i === 0) return null;
-
-				const [prevS1, prevS2] = scores[i - 1];
-
-				const p1 =
-					clan1.players[
-						playerCount - Math.ceil(prevS1 / stocksPerPlayer)
-					]; //TODO: undefined if 0 stocks remaining
-				const p2 =
-					clan2.players[
-						playerCount - Math.ceil(prevS2 / stocksPerPlayer)
-					];
-
-				return {
-					player1: {
-						name: p1[0],
-						startingStocks:
-							prevS1 % stocksPerPlayer || stocksPerPlayer,
-						legend: p1[1], // TODO: change legend name
-						score: prevS2 - s2,
-						teamScore: s1,
-					},
-					player2: {
-						name: p2[0],
-						startingStocks:
-							prevS2 % stocksPerPlayer || stocksPerPlayer,
-						legend: p2[1], // TODO: change legend name
-						score: prevS1 - s1,
-						teamScore: s2,
-					},
-				};
-			}
-		)
-		.slice(1);
-
-	return {
-		clan1,
-		clan2,
-		matches,
-		stocksPerPlayer,
-		currentScore: scores.length > 0 ? scores[scores.length - 1] : [0, 0],
-	};
-}
-
-export default function CBPage() {
-	const [CB, setCB] = useState<
-		ICrewBattle<
-			number,
-			string,
-			ICBClan<number, string>,
-			string,
-			ICBClan<number, string>
-		>
-	>(null);
+export default function ConfigPage() {
+	const { CB, socket } = useCB();
+	const [playerCount, setPlayerCount] = useState(1);
+	const [stocksPerPlayer, setStocksPerPlayer] = useState(3);
+	const [clans, setClans] = useState<
+		[ICBClan<number, string>, ICBClan<number, string>]
+	>([
+		{ name: 'Clan1', players: Array.from({ length: 10 }, () => ['', '']) },
+		{ name: 'Clan2', players: Array.from({ length: 10 }, () => ['', '']) },
+	]);
+	const [scoresCount, setScoresCount] = useState(0);
+	const [scores, setScores] = useState<[number, number][]>(
+		Array.from({ length: 100 }, () => [0, 0])
+	);
 
 	const {
 		query: { id },
 	} = useRouter();
 
+	function handleSubmit() {
+		if (!socket || !id) return;
+		const jsonCB: IJSONCrewBattle<number> = {
+			clan1: {
+				...clans[0],
+				players: clans[0].players.filter((_, i) => i < playerCount),
+			},
+			clan2: {
+				...clans[1],
+				players: clans[1].players.filter((_, i) => i < playerCount),
+			},
+			playerCount,
+			scores: scores.filter((_, i) => i < scoresCount),
+			stocksPerPlayer,
+		};
+
+		socket.emit('newCBData', { channelId: id, ...jsonCB });
+	}
+
 	useEffect(() => {
-		const socket = io(process.env.NEXT_PUBLIC_SERVER_ENDPOINT);
+		if (!CB) return;
+		const { clan1, clan2, scores, stocksPerPlayer } = CB;
+		setPlayerCount(clan1.players.length);
+		setStocksPerPlayer(stocksPerPlayer);
+		setClans([
+			{
+				...clan1,
+				players: [
+					...clan1.players,
+					...Array.from({ length: 10 - playerCount }, (): [
+						string,
+						string
+					] => ['', '']),
+				],
+			},
+			{
+				...clan2,
+				players: [
+					...clan2.players,
+					...Array.from({ length: 10 - playerCount }, (): [
+						string,
+						string
+					] => ['', '']),
+				],
+			},
+		]);
+		setScoresCount(scores.length);
+		setScores([
+			...scores,
+			...Array.from({ length: 100 - scoresCount }, (): [
+				number,
+				number
+			] => [0, 0]),
+		]);
+	}, [CB]);
+
+	useEffect(() => {
+		console.log('socket', socket);
+		if (!socket) return;
 
 		socket.on('CBData', (data) => {
-			console.log(data);
 			if (!data) return;
 			try {
 				const {
@@ -96,123 +97,225 @@ export default function CBPage() {
 					scores,
 				} = data as IJSONCrewBattle<number>;
 
-				console.log('????');
-				setCB(
-					getCrewBattle(
-						playerCount,
-						stocksPerPlayer,
-						clan1,
-						clan2,
-						scores
-					)
-				);
+				setPlayerCount(playerCount);
+				setStocksPerPlayer(stocksPerPlayer);
+				setClans([
+					{
+						...clan1,
+						players: [
+							...clan1.players,
+							...Array.from({ length: 10 - playerCount }, (): [
+								string,
+								string
+							] => ['', '']),
+						],
+					},
+					{
+						...clan2,
+						players: [
+							...clan2.players,
+							...Array.from({ length: 10 - playerCount }, (): [
+								string,
+								string
+							] => ['', '']),
+						],
+					},
+				]);
+				setScoresCount(scores.length);
+				setScores([
+					...scores,
+					...Array.from({ length: 100 - scoresCount }, (): [
+						number,
+						number
+					] => [0, 0]),
+				]);
 			} catch (e) {
 				console.log(e);
 			}
 		});
 
 		socket.emit('requestData', { channelId: id });
-	}, [id]);
+		console.log('request');
+	}, [socket]);
+
+	function updatePlayerValue(
+		teamId: number,
+		playerIndex: number,
+		valueIndex: 0 | 1,
+		value: string
+	) {
+		let newClans: [ICBClan<number, string>, ICBClan<number, string>] = [
+			...clans,
+		];
+
+		newClans[teamId].players[playerIndex][valueIndex] = value;
+		setClans(newClans);
+	}
+
+	function updateScores(scoreIndex: number, clanId: 0 | 1, score: number) {
+		let newScores: [number, number][] = [...scores];
+		newScores[scoreIndex][clanId] = score;
+		setScores(newScores);
+	}
 
 	return (
-		CB && (
-			<>
-				<Head>
-					<title>
-						{CB.clan1.name} vs. {CB.clan2.name}
-					</title>
-				</Head>
-				<div className={styles.container}>
-					<div className={styles.main}>
-						<motion.div
-							className={styles.logo}
-							initial={{ opacity: 0, y: -200 }}
-							animate={{ opacity: 1, y: 0 }}
-						>
-							<img src='/Logo.png' />
-						</motion.div>
-						<motion.div
-							className={styles.currentScore}
-							initial={{ scale: 0.8, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-						>
-							<motion.p
-								className={styles.clan1}
-								initial={{ x: -320 }}
-								animate={{ x: 0 }}
-							>
-								{CB.clan1.name}
-							</motion.p>
-							<p className={styles.score}>
-								{CB.currentScore[0]} - {CB.currentScore[1]}
-							</p>
-							<motion.p
-								className={styles.clan2}
-								initial={{ x: 320 }}
-								animate={{ x: 0 }}
-							>
-								{CB.clan2.name}
-							</motion.p>
-						</motion.div>
-						<div className={styles.players}>
-							{[CB.clan1, CB.clan2].map((clan, clanId) => (
-								<div>
-									{clan.players.map((p) => {
-										const totalStocks = CB.matches
-											.filter(
-												(m) =>
-													(clanId === 0
-														? m.player1.name
-														: m.player2.name) ===
-													p[0]
-											)
-											.reduce(
-												(acc, m) =>
-													acc +
-													(clanId === 0
-														? m.player1.score
-														: m.player2.score),
-												0
-											);
-
-										return (
-											<div className={styles.playerName}>
-												<img
-													width='32px'
-													height='32px'
-													src={`/legends/${p[1]}.png`}
-												/>
-												<p>
-													{p[0]} - {totalStocks} Stock
-													{totalStocks <= 1
-														? ''
-														: 's'}{' '}
-													Taken
-												</p>
-											</div>
-										);
-									})}
-								</div>
-							))}
-						</div>
-					</div>
-					<div className={styles.sets}>
-						<div className={styles.setsHeader}>
-							<p>{CB.clan1.name}</p>
-							<div className={styles.separator}></div>
-							<p>{CB.clan2.name}</p>
-						</div>
-						{CB.matches.map((m, i) => (
-							<Match
-								maxStocks={CB.stocksPerPlayer}
-								player1={m.player1}
-								player2={m.player2}
-								matchId={i}
+		<div className={styles.container}>
+			<Head>
+				<title>
+					{clans[0].name} vs. {clans[1].name} • Config
+				</title>
+			</Head>
+			<h1>Crew Battle Config</h1>
+			<div>
+				<label>
+					<h3>Players In Teams</h3>
+					<input
+						type='number'
+						value={playerCount}
+						onChange={(e) => {
+							const val = e.target.valueAsNumber;
+							setPlayerCount(Math.max(1, Math.min(val, 10)));
+						}}
+					/>
+				</label>
+			</div>
+			<div>
+				<label>
+					<h3>Stocks per Player</h3>
+					<input
+						type='number'
+						value={stocksPerPlayer}
+						onChange={(e) => {
+							const val = e.target.valueAsNumber;
+							setStocksPerPlayer(Math.max(1, Math.min(val, 10)));
+						}}
+					/>
+				</label>
+			</div>
+			<div className={styles.clans}>
+				{clans.map((_, clanId) => (
+					<div className={styles.clan}>
+						<h2>Clan {clanId + 1}</h2>
+						<label>
+							<h3>Clan Name</h3>
+							<input
+								className={styles.clanName}
+								type='text'
+								value={clans[clanId].name}
+								onChange={(e) => {
+									let newClans: [
+										ICBClan<number, string>,
+										ICBClan<number, string>
+									] = [...clans];
+									newClans[clanId].name = e.target.value;
+									setClans(newClans);
+								}}
 							/>
+						</label>
+						{Array.from({ length: playerCount }, (_, i) => (
+							<div className={styles.player}>
+								<h3>Player {i + 1}</h3>
+								<div>
+									<input
+										type='text'
+										value={clans[clanId].players[i][0]}
+										onChange={(e) =>
+											updatePlayerValue(
+												clanId,
+												i,
+												0,
+												e.target.value
+											)
+										}
+									/>
+									<div className={styles.legendsSelect}>
+										{clans[clanId].players[i][1] && (
+											<img
+												width='32px'
+												height='32px'
+												src={`/legends/${clans[clanId].players[i][1]}.png`}
+											/>
+										)}
+										<Select
+											className={styles.select}
+											value={{
+												value:
+													clans[clanId].players[i][1],
+												label:
+													clans[clanId].players[i][1],
+											}}
+											options={legends.map((l) => ({
+												value: l.bio_name,
+												label: l.bio_name,
+											}))}
+											onChange={(e) =>
+												updatePlayerValue(
+													clanId,
+													i,
+													1,
+													e.value
+												)
+											}
+										/>
+									</div>
+								</div>
+							</div>
 						))}
 					</div>
-				</div>
-			</>
-		)
+				))}
+			</div>
+			<div className={styles.scores}>
+				<h2>Scores</h2>
+				<label>
+					Scores Count
+					<input
+						type='number'
+						value={scoresCount}
+						onChange={(e) => {
+							const val = e.target.valueAsNumber;
+							setScoresCount(Math.max(0, Math.min(val, 100)));
+						}}
+					/>
+				</label>
+				{Array.from({ length: scoresCount }, (_, i) => (
+					<div>
+						<h3>Match {i + 1}</h3>
+						<label>
+							<input
+								type='number'
+								value={scores[i][0]}
+								onChange={(e) =>
+									updateScores(i, 0, e.target.valueAsNumber)
+								}
+							/>
+						</label>
+						<label>
+							<input
+								type='number'
+								value={scores[i][1]}
+								onChange={(e) =>
+									updateScores(i, 1, e.target.valueAsNumber)
+								}
+							/>
+						</label>
+					</div>
+				))}
+			</div>
+			<div className={styles.buttons}>
+				<a onClick={handleSubmit} className={styles.submitBtn}>
+					Submit
+				</a>
+				<Link href={`/${id}/display`}>
+					<a target='_blank' className={styles.submitBtn}>
+						Open Display Page
+					</a>
+				</Link>
+				<Link href={`/${id}/overlay`}>
+					<a target='_blank' className={styles.submitBtn}>
+						Open Overlay Page
+					</a>
+				</Link>
+			</div>
+		</div>
 	);
 }

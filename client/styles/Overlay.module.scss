@@ -1,0 +1,67 @@
+@import './theme.scss';
+
+$overlay-width: 1080px;
+$size-name: 270px;
+$size-score: 80px;
+$size-legend: 80px;
+$size-logo: 200px;
+
+.container {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: auto;
+	text-align: center;
+
+	.overlay {
+		display: grid;
+		align-items: flex-end;
+		width: 100%;
+		grid-template-columns: 1fr $size-legend $size-name $size-score $size-logo $size-score $size-name $size-legend 1fr;
+		grid-template-areas: 'blank1 legend1 name1 score1 logo score2 name2 legend2 blank2';
+
+		.name1,
+		.name2 {
+			margin-bottom: 18px;
+			text-transform: uppercase;
+			font-weight: bold;
+			font-size: 1.5rem;
+		}
+		.name1 {
+			grid-area: name1;
+		}
+		.name2 {
+			grid-area: name2;
+		}
+
+		.legend1,
+		.legend2 {
+			margin-bottom: 12px;
+
+			img {
+				width: 36px;
+				height: 36px;
+			}
+		}
+		.legend1 {
+			grid-area: legend1;
+		}
+		.legend2 {
+			grid-area: legend2;
+		}
+
+		.score1,
+		.score2 {
+			margin-bottom: 20px;
+			font-weight: bold;
+			font-size: 2.5rem;
+		}
+		.score1 {
+			grid-area: score1;
+		}
+		.score2 {
+			grid-area: score2;
+		}
+	}
+}
